@@ -1,0 +1,34 @@
+name: Build Bluey iPhone IPA
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate Xcode project
+        run: xcodegen generate
+      - name: Build unsigned iOS app
+        run: |
+          xcodebuild -project GooglyEyes.xcodeproj \
+            -scheme GooglyEyes \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath "$RUNNER_TEMP/BlueyBuild" \
+            CODE_SIGNING_ALLOWED=NO \
+            DEVELOPMENT_TEAM='' \
+            build
+      - name: Package IPA
+        run: |
+          mkdir -p "$RUNNER_TEMP/Payload"
+          cp -R "$RUNNER_TEMP/BlueyBuild/Build/Products/Release-iphoneos/Bluey.app" "$RUNNER_TEMP/Payload/"
+          cd "$RUNNER_TEMP"
+          zip -qr "$GITHUB_WORKSPACE/Bluey-unsigned.ipa" Payload
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Bluey-iPhone-unsigned-IPA
+          path: Bluey-unsigned.ipa
