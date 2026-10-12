@@ -355,7 +355,7 @@ final class LiveVoice: NSObject, ObservableObject {
     private func startAudio() throws {
         #if os(iOS)
         let session = AVAudioSession.sharedInstance()
-        try session.setCategory(.playAndRecord, mode: .voiceChat, options: [.defaultToSpeaker, .allowBluetoothHFP])
+        try session.setCategory(.playAndRecord, mode: .voiceChat, options: [.defaultToSpeaker, .allowBluetooth])
         try session.setActive(true)
         #endif
 
